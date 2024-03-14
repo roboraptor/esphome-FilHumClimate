@@ -20,6 +20,7 @@ States of climate control should be seen on addressable WS2812 LEDs. (For now 10
 Temperature and Humidity of both sensors should be seen on SH1106 96x16 I2C Display
 - Temp1 - Hum1 -
 - Temp2 - Hum2 -
+
 (Thinking about adding climate state too, but the display is too small)
 
 Climate presets ready to use
@@ -27,6 +28,7 @@ Climate presets ready to use
 - Cool-FO - Mode: fan_only, Target: 15°C-35°C
 - Cool - Mode: cool, Target: 15°C-35°C
 - Idle - Mode: off, Target: 10°C-25°C
+
 (I want to play with more with cool and fan_only difference and see in future what is better)
 
 Target Humidity should be below 10%.
