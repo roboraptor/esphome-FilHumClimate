@@ -2,6 +2,7 @@
 ESPHome Filament Dryer Dehumidifier Thermostat Climate control
 
 Hi, this is a project for controlling heater and fan element for drying fillaments for 3D printer. 
+For now, switching between climate modes and temperature control is done by HomeAssistant. 
 
 Used Hardware:
 - ESP 8266
