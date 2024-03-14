@@ -18,8 +18,11 @@ States of climate control should be seen on addressable WS2812 LEDs. (For now 10
 - Idle - Rainbow
 
 Temperature and Humidity of both sensors should be seen on SH1106 96x16 I2C Display
-- Temp1 - Hum1 -
-- Temp2 - Hum2 -
+
+
+| Temp1 | Hum1 |
+| ----- | ---- |
+| Temp2 | Hum2 |
 
 (Thinking about adding climate state too, but the display is too small)
 
