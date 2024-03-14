@@ -1,0 +1,201 @@
+substitutions:
+  sda_pin: GPIO4 # ESP8266 SDA pin
+  scl_pin: GPIO5 # ESP8266 SCL pin
+  dht1_pin: GPIO12 # First DHT22 pin
+  dht2_pin: GPIO13 # Second DHT22 pin
+  heat_pin: GPIO14 # Heater Relay pin
+  fan_pin: GPIO15 # Fan Relay pin
+  led_pin: GPIO3 # Addressable LED pin (WS2812) 
+
+esphome:
+  name: filahumclimate
+  friendly_name: FilaHumClimate
+
+esp8266:
+  board: esp01_1m
+
+# Enable logging
+logger:
+
+# Enable Home Assistant API
+api:
+  encryption:
+    key: <YOUR_ENCRIPTION_KEY>
+
+ota:
+  password: <YOUR_OTA_PASS>
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+
+  # Enable fallback hotspot (captive portal) in case wifi connection fails
+  ap:
+    ssid: "Filahumclimate Fallback Hotspot"
+    password: <YOUR_AP_PASS>
+
+captive_portal:
+    
+i2c:
+  sda: $sda_pin
+  scl: $scl_pin
+  scan: true
+
+font:
+  - file: "fonts/Roboto-Regular.ttf"
+    id: my_font
+    size: 8
+
+sensor:
+  - platform: dht
+    pin: $dht1_pin
+    temperature:
+      name: "Filament Temperature 1"
+      id: fil_tmp_1
+    humidity:
+      name: "Filament Humidity 1"
+      id: fil_hum_1
+      accuracy_decimals: 1
+      on_value_range:
+        - below: 10
+          then:
+            - climate.control:
+                id: therm
+                custom_preset: Cool-FO
+    update_interval: 5s
+    
+  - platform: dht
+    pin: $dht2_pin
+    temperature:
+      name: "Filament Temperature 2"
+      id: fil_tmp_2
+    humidity:
+      name: "Filament Humidity 2"
+      id: fil_hum_2
+      accuracy_decimals: 1
+    update_interval: 5s
+
+switch:
+  - platform: gpio
+    name: "Heating"
+    id: "heat_state"
+    pin: $heat_pin
+    inverted: false
+  - platform: gpio
+    name: "Fan"
+    id: "fan_state"
+    pin: $fan_pin
+    inverted: false
+
+display:
+  - platform: "ssd1306_i2c"
+    model: SH1106_96x16
+    reset_pin: GPIO16
+    address: 0x3C
+    lambda: |-   
+      it.printf(0, 0, id(my_font), TextAlign::TOP_LEFT, "%.1f°", id(fil_tmp_1).state);
+      it.printf(0, 8, id(my_font), TextAlign::TOP_LEFT, "%.1f°", id(fil_tmp_2).state);
+      it.printf(48, 0, id(my_font), TextAlign::TOP_LEFT, "%.1f%", id(fil_hum_1).state);
+      it.printf(48, 8, id(my_font), TextAlign::TOP_LEFT, "%.1f%", id(fil_hum_2).state);
+
+light:
+  - platform: neopixelbus
+    type: GRB
+    variant: WS2811
+    pin: $led_pin
+    num_leds: 10
+    name: "FilaHum Led"
+    id: leds
+    effects:
+      - pulse:
+          name: "Pulse"
+          transition_length: 1s
+          update_interval: 500ms
+          min_brightness: 10%
+          max_brightness: 50%
+      - addressable_rainbow:
+          name: "Rainbow"
+          speed: 10
+          width: 50
+      - addressable_fireworks:
+          name: "Fireworks"
+          update_interval: 32ms
+          spark_probability: 10%
+          use_random_color: false
+          fade_out_rate: 120
+
+climate:
+  - platform: thermostat
+    name: "Filament Humidity Controller"
+    id: therm
+    visual:
+      min_temperature: 10
+      max_temperature: 60
+      temperature_step:
+        target_temperature: 0.5
+        current_temperature: 0.1
+    sensor: fil_tmp_1
+    humidity_sensor: fil_hum_1
+    min_heating_off_time: 10s
+    min_heating_run_time: 5s
+    min_cooling_off_time: 10s
+    min_cooling_run_time: 10s
+    min_fanning_off_time: 10s
+    min_fanning_run_time: 60s
+    min_idle_time: 10s
+    heat_action:
+      - switch.turn_on: heat_state
+      - switch.turn_on: fan_state
+      - light.turn_on:
+          id: leds
+          brightness: 50%
+          red: 1
+          green: 0
+          blue: 0
+          effect: "Pulse"
+    cool_action:
+      - switch.turn_off: heat_state
+      - switch.turn_on: fan_state
+      - light.turn_on:
+          id: leds
+          brightness: 50%
+          red: 0
+          green: 0
+          blue: 1
+    fan_only_action:
+      - switch.turn_off: heat_state
+      - switch.turn_on: fan_state
+      - light.turn_on:
+          id: leds
+          brightness: 50%
+          red: 0
+          green: 0.5
+          blue: 0.5
+    idle_action:
+      - switch.turn_off: heat_state
+      - light.turn_on:
+          id: leds
+          brightness: 50%
+          effect: "Rainbow"
+    off_mode:
+      - switch.turn_off: heat_state
+      - switch.turn_off: fan_state
+      - light.turn_off: leds
+    default_preset: Idle
+    preset:
+      - name: Idle
+        default_target_temperature_low: 10 °C
+        default_target_temperature_high: 25 °C
+        mode: "OFF"
+      - name: Dry
+        default_target_temperature_low: 45 °C
+        default_target_temperature_high: 50 °C
+        mode: heat
+      - name: Cool-FO
+        default_target_temperature_low: 15 °C
+        default_target_temperature_high: 35 °C
+        mode: fan_only
+      - name: Cool
+        default_target_temperature_low: 15 °C
+        default_target_temperature_high: 35 °C
+        mode: cool
