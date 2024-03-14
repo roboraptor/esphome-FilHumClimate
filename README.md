@@ -27,10 +27,12 @@ Temperature and Humidity of both sensors should be seen on SH1106 96x16 I2C Disp
 (Thinking about adding climate state too, but the display is too small)
 
 Climate presets ready to use
-- Dry - Mode: heat, Target: 45°C-50°C
-- Cool-FO - Mode: fan_only, Target: 15°C-35°C
-- Cool - Mode: cool, Target: 15°C-35°C
-- Idle - Mode: off, Target: 10°C-25°C
+| Name | Mode | Target |
+| --- | --- | --- |
+| Dry | HEAT | 45°C-50°C |
+| Cool-FO | FAN_ONLY | 15°C-35°C |
+| Cool | COOL | 15°C-35°C |
+| Idle | OFF | 10°C-25°C |
 
 (I want to play with more with cool and fan_only difference and see in future what is better)
 
