@@ -38,3 +38,9 @@ Climate presets ready to use
 
 Target Humidity should be below 10%.
 If reached, climate control is automatically set to cool-fo but there should be some more decidement on previous state of climate control or something.
+
+This whole thing has 2 outputs, for fan and heater.
+It is supposed to control relays and switch Fan and Heating element in Air Food Dehydratator.
+Working with devices that use high voltage is dangerous.
+Please consider your safety, knowledge and skills.
+Do it only at your own risk. 
