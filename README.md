@@ -9,7 +9,7 @@ Used Hardware:
 - SH1106 96x16 I2C Display
 - WS2812 Addressable LEDs
 - Relays
-- Air Food Dehydratator
+- Air Food Dehydratator (part with fan and heating element)
 
 I implemented second DHT22 sensor just for logging purposes and future corrections according to box sizes.
 
