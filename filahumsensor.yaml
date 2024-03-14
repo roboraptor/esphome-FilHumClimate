@@ -1,0 +1,73 @@
+esphome:
+  name: filahumsensor
+  friendly_name: FilaHumSensor
+
+esp8266:
+  board: esp01_1m
+
+# Enable logging
+logger:
+
+# Enable Home Assistant API
+api:
+  encryption:
+    key: ""
+
+ota:
+  password: ""
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+
+  # Enable fallback hotspot (captive portal) in case wifi connection fails
+  ap:
+    ssid: "Filahumsensor Fallback Hotspot"
+    password: ""
+
+captive_portal:
+    
+
+i2c:
+  sda: GPIO4
+  scl: GPIO5
+
+font:
+  - file: "fonts/Roboto-Regular.ttf"
+    id: my_font
+    size: 9
+
+sensor:
+  - platform: dht
+    pin: GPIO12
+    temperature:
+      name: "Filament Temperature 1"
+      id: fil_tmp_1
+    humidity:
+      name: "Filament Humidity 1"
+      id: fil_hum_1
+      accuracy_decimals: 1
+    update_interval: 60s
+    
+  - platform: dht
+    pin: GPIO13
+    temperature:
+      name: "Filament Temperature 2"
+      id: fil_tmp_2
+    humidity:
+      name: "Filament Humidity 2"
+      id: fil_hum_2
+      accuracy_decimals: 1
+    update_interval: 60s
+    
+
+display:
+  - platform: "ssd1306_i2c"
+    model: SH1106_96x16
+    reset_pin: GPIO16
+    address: 0x3C
+    lambda: |-   
+      it.printf(0, 0, id(my_font), TextAlign::TOP_LEFT, "%.1f°", id(fil_tmp_1).state);
+      it.printf(0, 8, id(my_font), TextAlign::TOP_LEFT, "%.1f°", id(fil_tmp_2).state);
+      it.printf(48, 0, id(my_font), TextAlign::TOP_LEFT, "%.1f%", id(fil_hum_1).state);
+      it.printf(48, 8, id(my_font), TextAlign::TOP_LEFT, "%.1f%", id(fil_hum_2).state);
