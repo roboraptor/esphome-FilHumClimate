@@ -8,6 +8,8 @@ Used Hardware:
 - DHT22 Temperature & Humidity Sensor
 - SH1106 96x16 I2C Display
 - WS2812 Addressable LEDs
+- Relays
+- Air Food Dehydratator
 
 I implemented second DHT22 sensor just for logging purposes and future corrections according to box sizes.
 
