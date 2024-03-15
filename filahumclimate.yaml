@@ -5,7 +5,10 @@ substitutions:
   dht2_pin: GPIO13 # Second DHT22 pin
   heat_pin: GPIO14 # Heater Relay pin
   fan_pin: GPIO15 # Fan Relay pin
-  led_pin: GPIO3 # Addressable LED pin (WS2812) 
+  led_pin: GPIO3 # Addressable LED pin (WS2812) / wled supports GPIO2
+  but_pin: GPIO16 # Rotary Encoder Button
+  rea_pin: GPIO9 # Rotary Encoder pin A
+  reb_pin: GPIO10 # Rotary Encoder pin B
 
 esphome:
   name: filahumclimate
@@ -76,6 +79,41 @@ sensor:
       accuracy_decimals: 1
     update_interval: 5s
 
+  - platform: rotary_encoder
+    id: encoder
+    pin_a:
+      number: $rea_pin
+      mode: INPUT_PULLUP
+    pin_b:
+      number: $reb_pin
+      mode: INPUT_PULLUP
+    on_clockwise:
+        - if:
+            condition:
+              switch.is_on: heat_cool
+            then:
+              - climate.control:
+                  id: therm
+                  target_temperature_high: !lambda "return id(therm).target_temperature_high + 0.5;"
+            else:
+              - climate.control:
+                  id: therm
+                  target_temperature_low: !lambda "return id(therm).target_temperature_low + 0.5;"
+
+    on_anticlockwise:
+      then:
+        - if:
+            condition:
+              switch.is_on: heat_cool
+            then:
+              - climate.control:
+                  id: therm
+                  target_temperature_high: !lambda "return id(therm).target_temperature_high - 0.5;"
+            else:
+              - climate.control:
+                  id: therm
+                  target_temperature_low: !lambda "return id(therm).target_temperature_low - 0.5;"
+
 switch:
   - platform: gpio
     name: "Heating"
@@ -87,6 +125,68 @@ switch:
     id: "fan_state"
     pin: $fan_pin
     inverted: false
+  - platform: template
+    id: heat_cool
+    optimistic: true
+
+binary_sensor:
+  - platform: gpio
+    id: button
+    pin:
+      number: $but_pin
+      inverted: true
+    on_press:
+      then:
+        - switch.toggle: heat_cool
+    on_click:
+      - min_length: 1000ms
+        max_length: 20000ms
+        then:
+          - select.operation:
+              id: therm_pre
+              operation: Next
+              cycle: true
+          - if:
+              condition:
+                - lambda: 'return id(my_select).state == "off";'
+              then:
+                - climate.control:
+                    id: therm
+                    custom_preset: Idle
+          - if:
+              condition:
+                - lambda: 'return id(my_select).state == "dry";'
+              then:
+                - climate.control:
+                    id: therm
+                    custom_preset: Dry
+          - if:
+              condition:
+                - lambda: 'return id(my_select).state == "coolfan";'
+              then:
+                - climate.control:
+                    id: therm
+                    custom_preset: Cool-FO
+          - if:
+              condition:
+                - lambda: 'return id(my_select).state == "cool";'
+              then:
+                - climate.control:
+                    id: therm
+                    custom_preset: Cool                                                            
+
+select:
+  - platform: template 
+    name: "Climate presets"
+    id: therm_pre
+    options:
+     - "off"
+     - "dry"
+     - "coolfan"
+     - "cool"
+    initial_option: "off"
+    optimistic: true
+    set_action:
 
 display:
   - platform: "ssd1306_i2c"
@@ -139,11 +239,6 @@ climate:
     humidity_sensor: fil_hum_1
     min_heating_off_time: 10s
     min_heating_run_time: 5s
-    min_cooling_off_time: 10s
-    min_cooling_run_time: 10s
-    min_fanning_off_time: 10s
-    min_fanning_run_time: 60s
-    min_idle_time: 10s
     heat_action:
       - switch.turn_on: heat_state
       - switch.turn_on: fan_state
@@ -154,6 +249,8 @@ climate:
           green: 0
           blue: 0
           effect: "Pulse"
+    min_cooling_off_time: 10s
+    min_cooling_run_time: 10s     
     cool_action:
       - switch.turn_off: heat_state
       - switch.turn_on: fan_state
@@ -163,6 +260,8 @@ climate:
           red: 0
           green: 0
           blue: 1
+    min_fanning_off_time: 10s
+    min_fanning_run_time: 60s      
     fan_only_action:
       - switch.turn_off: heat_state
       - switch.turn_on: fan_state
@@ -172,6 +271,7 @@ climate:
           red: 0
           green: 0.5
           blue: 0.5
+    min_idle_time: 10s      
     idle_action:
       - switch.turn_off: heat_state
       - light.turn_on:
@@ -183,6 +283,7 @@ climate:
       - switch.turn_off: fan_state
       - light.turn_off: leds
     default_preset: Idle
+    on_boot_restore_from: default_preset
     preset:
       - name: Idle
         default_target_temperature_low: 10 °C
