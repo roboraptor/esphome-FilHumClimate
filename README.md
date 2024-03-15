@@ -48,3 +48,6 @@ It is supposed to control relays and switch Fan and Heating element in Air Food 
 Working with devices that use high voltage is dangerous.
 Please consider your safety, knowledge and skills.
 Do it only at your own risk. 
+
+Here is a pinout for ESP8266 
+![image](https://github.com/roboraptor/esphome-FilHumClimate/assets/17791899/8a86260f-8051-45bf-810f-c442ea61d9a9)
