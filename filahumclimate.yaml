@@ -59,9 +59,10 @@ sensor:
       on_value_range:
         - below: 10
           then:
-            - climate.control:
-                id: therm
-                custom_preset: Cool-FO
+            - light.turn_on:
+                id: leds
+                brightness: 50%
+                effect: "Fireworks"
     update_interval: 5s
     
   - platform: dht
