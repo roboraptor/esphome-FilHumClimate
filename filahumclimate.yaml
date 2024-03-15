@@ -148,28 +148,28 @@ binary_sensor:
               cycle: true
           - if:
               condition:
-                - lambda: 'return id(my_select).state == "off";'
+                - lambda: 'return id(therm_pre).state == "off";'
               then:
                 - climate.control:
                     id: therm
                     custom_preset: Idle
           - if:
               condition:
-                - lambda: 'return id(my_select).state == "dry";'
+                - lambda: 'return id(therm_pre).state == "dry";'
               then:
                 - climate.control:
                     id: therm
                     custom_preset: Dry
           - if:
               condition:
-                - lambda: 'return id(my_select).state == "coolfan";'
+                - lambda: 'return id(therm_pre).state == "coolfan";'
               then:
                 - climate.control:
                     id: therm
                     custom_preset: Cool-FO
           - if:
               condition:
-                - lambda: 'return id(my_select).state == "cool";'
+                - lambda: 'return id(therm_pre).state == "cool";'
               then:
                 - climate.control:
                     id: therm
@@ -186,12 +186,12 @@ select:
      - "cool"
     initial_option: "off"
     optimistic: true
-    set_action:
+
 
 display:
   - platform: "ssd1306_i2c"
     model: SH1106_96x16
-    reset_pin: GPIO16
+    # reset_pin: GPIO16
     address: 0x3C
     lambda: |-   
       it.printf(0, 0, id(my_font), TextAlign::TOP_LEFT, "%.1f°", id(fil_tmp_1).state);
