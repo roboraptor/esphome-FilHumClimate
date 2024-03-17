@@ -216,10 +216,10 @@ display:
       } else {
         it.rectangle(87, 16, 23, 16);
       }
-      if (id(therm_pre).state == "off" ) {  it.print(118, -2, id(my_font2), "X");  }
-      if (id(therm_pre).state == "dry") {  it.print(118, -2, id(my_font2), "D");  }
-      if (id(therm_pre).state == "coolfan") {  it.print(118, -2, id(my_font2), "F");  }
-      if (id(therm_pre).state == "cool") {  it.print(118, -2, id(my_font2), "C");  }
+      if (id(therm_pre).state == "off" ) {  it.print(117, -3, id(my_font2), "O");  }
+      if (id(therm_pre).state == "dry") {  it.print(117, -3, id(my_font2), "D");  }
+      if (id(therm_pre).state == "coolfan") {  it.print(117, -3, id(my_font2), "F");  }
+      if (id(therm_pre).state == "cool") {  it.print(117, -3, id(my_font2), "C");  }
       it.print(117, 8, id(my_font2), "H");
       if (id(heat_state).state) {  it.rectangle(116, 10, 10, 11);  }
       it.print(117, 19, id(my_font2), "F");
@@ -259,7 +259,7 @@ climate:
       min_temperature: 10
       max_temperature: 60
       temperature_step:
-        target_temperature: 0.5
+        target_temperature: 1
         current_temperature: 0.1
     sensor: fil_tmp_1
     humidity_sensor: fil_hum_1
