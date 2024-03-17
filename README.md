@@ -50,6 +50,8 @@ It is supposed to control relays and switch Fan and Heating element in Air Food 
 Please consider your safety, knowledge and skills.  
 ***Do it only at your own risk.***  
 
-Here is a pinout for ESP8266 
+Here is few pictures 
 
-![image](https://github.com/roboraptor/esphome-FilHumClimate/assets/17791899/8a86260f-8051-45bf-810f-c442ea61d9a9)
+![image](https://github.com/roboraptor/esphome-FilHumClimate/blob/main/images/display.jpg)
+
+![image](https://github.com/roboraptor/esphome-FilHumClimate/blob/main/images/pinout.png)
