@@ -45,13 +45,23 @@ i2c:
   scan: true
 
 font:
-  - file: "fonts/Roboto-Regular.ttf"
+  - file:
+      type: gfonts
+      family: "Madimi One"
     id: my_font
-    size: 8
+    size: 15
+  - file:
+      type: gfonts
+      family: "Roboto"
+      weight: 100
+    id: my_font2
+    size: 12
+
 
 sensor:
   - platform: dht
     pin: $dht1_pin
+    model: AM2302
     temperature:
       name: "Filament Temperature 1"
       id: fil_tmp_1
@@ -70,6 +80,7 @@ sensor:
     
   - platform: dht
     pin: $dht2_pin
+    model: AM2302
     temperature:
       name: "Filament Temperature 2"
       id: fil_tmp_2
@@ -94,11 +105,11 @@ sensor:
             then:
               - climate.control:
                   id: therm
-                  target_temperature_high: !lambda "return id(therm).target_temperature_high + 0.5;"
+                  target_temperature_high: !lambda "return id(therm).target_temperature_high + 1;"
             else:
               - climate.control:
                   id: therm
-                  target_temperature_low: !lambda "return id(therm).target_temperature_low + 0.5;"
+                  target_temperature_low: !lambda "return id(therm).target_temperature_low + 1;"
 
     on_anticlockwise:
       then:
@@ -108,11 +119,11 @@ sensor:
             then:
               - climate.control:
                   id: therm
-                  target_temperature_high: !lambda "return id(therm).target_temperature_high - 0.5;"
+                  target_temperature_high: !lambda "return id(therm).target_temperature_high - 1;"
             else:
               - climate.control:
                   id: therm
-                  target_temperature_low: !lambda "return id(therm).target_temperature_low - 0.5;"
+                  target_temperature_low: !lambda "return id(therm).target_temperature_low - 1;"
 
 switch:
   - platform: gpio
@@ -190,14 +201,29 @@ select:
 
 display:
   - platform: "ssd1306_i2c"
-    model: SH1106_96x16
+    model: SH1106_128x32
     # reset_pin: GPIO16
     address: 0x3C
     lambda: |-   
-      it.printf(0, 0, id(my_font), TextAlign::TOP_LEFT, "%.1f°", id(fil_tmp_1).state);
-      it.printf(0, 8, id(my_font), TextAlign::TOP_LEFT, "%.1f°", id(fil_tmp_2).state);
-      it.printf(48, 0, id(my_font), TextAlign::TOP_LEFT, "%.1f%", id(fil_hum_1).state);
-      it.printf(48, 8, id(my_font), TextAlign::TOP_LEFT, "%.1f%", id(fil_hum_2).state);
+      it.printf(0, -2, id(my_font), TextAlign::TOP_LEFT, "%.1f°", id(fil_tmp_1).state);
+      it.printf(0, 14, id(my_font), TextAlign::TOP_LEFT, "%.1f°", id(fil_tmp_2).state);
+      it.printf(40, -2, id(my_font), TextAlign::TOP_LEFT, "%.1f%%", id(fil_hum_1).state);
+      it.printf(40, 14, id(my_font), TextAlign::TOP_LEFT, "%.1f%%", id(fil_hum_2).state);
+      it.printf(90, -2, id(my_font), TextAlign::TOP_LEFT, "%.0f", id(therm).target_temperature_high);
+      it.printf(90, 14, id(my_font), TextAlign::TOP_LEFT, "%.0f", id(therm).target_temperature_low);
+      if (id(heat_cool).state) {
+        it.rectangle(87, 0, 23, 16);
+      } else {
+        it.rectangle(87, 16, 23, 16);
+      }
+      if (id(therm_pre).state == "off" ) {  it.print(118, -2, id(my_font2), "X");  }
+      if (id(therm_pre).state == "dry") {  it.print(118, -2, id(my_font2), "D");  }
+      if (id(therm_pre).state == "coolfan") {  it.print(118, -2, id(my_font2), "F");  }
+      if (id(therm_pre).state == "cool") {  it.print(118, -2, id(my_font2), "C");  }
+      it.print(117, 8, id(my_font2), "H");
+      if (id(heat_state).state) {  it.rectangle(116, 10, 10, 11);  }
+      it.print(117, 19, id(my_font2), "F");
+      if (id(fan_state).state) {  it.rectangle(116, 21, 10, 11);  }          
 
 light:
   - platform: neopixelbus
